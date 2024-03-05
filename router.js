@@ -3,35 +3,23 @@ const router = express.Router()
 const db = require("./Connection")
 
 
-
-const takeOffLocation = { x: 13.004354, y: 77.6818555 };
-
-const insertedData = [
-
-        1108,
-        "Naveed",
-        "Krishak 1i",
-        "49c68e1b-7fda-57a8-9a86-89dd83e9cc8a",
-        "2024-02-15T16:50:26Z",
-        "2024-02-15T20:02:25Z",
-        `(${takeOffLocation.x}, ${takeOffLocation.y})`,
-        3,
-        10,
-        0,
-        20,
-        0,
-        10000,
-        0,
-        4000,
-        2000,
-        1,
-        JSON.stringify({warning:[]}),
-        1
-        
-]
-
-
 router.post('/adddata', (req, res) => {
+
+    const datas = req.body.parameters
+
+    let insertedData = []
+
+    datas.forEach(data => {
+        if (data.name === 'Take-Off Location') {
+            insertedData.push(`(${parseFloat(data.value.split(',')[0])}, ${parseFloat(data.value.split(',')[1])})`)
+            return
+        }
+        if (data.name === 'Warnings') {
+            insertedData.push(JSON.stringify({ warning: data.value }))
+            return
+        }
+        insertedData.push(data.value)
+    });
 
     db.query('INSERT INTO mission_summaries (pilot_id,pilot_name, drone_code,drone_uuid,mission_started_at,mission_ended_at, take_off_location,mission_height,clearance_height,payload_at_start,payload_at_end,battery_capacity_at_start,battery_capacity_at_end,area_sprayed_at_start,area_sprayed_at_end,flight_time,arm_cycle,warnings,plan) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)', insertedData, (err, result) => {
         if (err) {
@@ -39,7 +27,7 @@ router.post('/adddata', (req, res) => {
             res.status(500).json({ error: err });
             return;
         }
-        res.status(200).json({message:"Data Added Successfully"})
+        res.status(200).json({ message: "Data Added Successfully" })
     });
 
 })
