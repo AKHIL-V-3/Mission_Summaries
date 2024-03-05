@@ -30,19 +30,16 @@ const insertedData = [
         
 ]
 
-router.get('/', (req, res) => {
-    res.send("heyyyy")
-})
-
 
 router.post('/adddata', (req, res) => {
 
     db.query('INSERT INTO mission_summaries (pilot_id,pilot_name, drone_code,drone_uuid,mission_started_at,mission_ended_at, take_off_location,mission_height,clearance_height,payload_at_start,payload_at_end,battery_capacity_at_start,battery_capacity_at_end,area_sprayed_at_start,area_sprayed_at_end,flight_time,arm_cycle,warnings,plan) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)', insertedData, (err, result) => {
         if (err) {
             console.error('Error inserting data:', err);
+            res.status(500).json({ error: err });
             return;
         }
-        console.log('Inserted ID:', result.insertId);
+        res.status(200).json({message:"Data Added Successfully"})
     });
 
 })
@@ -57,7 +54,7 @@ router.get('/getData', (req, res) => {
         }
 
         console.log(rows);
-        res.json(rows);
+        res.status(200).json(rows);
     });
 });
 
